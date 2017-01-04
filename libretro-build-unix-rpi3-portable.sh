@@ -35,7 +35,7 @@ function prerequisites()
 {
     # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
-    git clone ${LIBRETRO_REPO} || "${LIBRETRO_PATH}/libretro-fetch.sh"
+    git clone ${LIBRETRO_REPO} && cd ${LIBRETRO_PATH} && "${LIBRETRO_PATH}/libretro-fetch.sh"
 
     # Update the packages
     cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull

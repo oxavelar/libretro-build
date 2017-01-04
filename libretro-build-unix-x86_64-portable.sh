@@ -17,7 +17,7 @@ export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -mavx -mavx2 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=jobserver -pipe"
 export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
-export CFLAGS="${CFLAGS} -march=broadwell -mtune=broadwell"
+export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -28,7 +28,7 @@ function prerequisites()
 {
     # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
-    git clone ${LIBRETRO_REPO} || "${LIBRETRO_PATH}/libretro-fetch.sh"
+    git clone ${LIBRETRO_REPO} && cd ${LIBRETRO_PATH} && "${LIBRETRO_PATH}/libretro-fetch.sh"
 
     # Update the packages
     cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull
