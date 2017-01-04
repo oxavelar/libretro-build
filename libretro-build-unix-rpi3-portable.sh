@@ -15,9 +15,9 @@ OUT_DIR="${CURR_DIR}/retroarch/"
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O3 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer"
+export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer"
 export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
-export CFLAGS="${CFLAGS} -marm -march=armv8-a+crc -mcpu=cortex-a53 -funsafe-math-optimizations"
+export CFLAGS="${CFLAGS} -marm -march=armv8-a+crc -mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -funsafe-math-optimizations"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -35,7 +35,7 @@ function prerequisites()
 {
     # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
-    git clone ${LIBRETRO_REPO} && cd ${LIBRETRO_PATH} && "${LIBRETRO_PATH}/libretro-fetch.sh"
+    git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
 
     # Update the packages
     cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull
@@ -53,7 +53,7 @@ function build_retroarch()
     make -j40 clean
     # ARM optimizations
     #./configure --help || exit 0
-    ./configure --enable-neon --enable-opengl --disable-vulkan --enable-gles --disable-xvideo --disable-cg --disable-v4l2 --disable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-miniupnpc || exit -127
+    ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-miniupnpc || exit -127
     time make -f Makefile -j16 || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
@@ -77,7 +77,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j40 clean && make platform="rpi3" -j16 || continue
+        make -j40 clean && make platform="rpi" -j16 || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done

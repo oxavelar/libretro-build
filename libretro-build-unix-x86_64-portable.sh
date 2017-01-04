@@ -15,20 +15,20 @@ OUT_DIR="${CURR_DIR}/retroarch/"
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O3 -mavx -mavx2 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=jobserver -pipe"
+export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=jobserver -pipe"
 export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
-export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
+export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic -mavx -mavx2"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
-export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,-flto -Wl,--hash-style=gnu -Wl,--as-needed"
+export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
 
 
 function prerequisites()
 {
     # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
-    git clone ${LIBRETRO_REPO} && cd ${LIBRETRO_PATH} && "${LIBRETRO_PATH}/libretro-fetch.sh"
+    git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
 
     # Update the packages
     cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull
@@ -46,7 +46,7 @@ function build_retroarch()
     make -j40 clean
     # x86_64 optimizations
     #./configure --help || exit 0
-    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-gles --disable-xvideo --disable-cg --disable-v4l2 --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus || exit -127
+    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus || exit -127
     time make -f Makefile -j16 || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
