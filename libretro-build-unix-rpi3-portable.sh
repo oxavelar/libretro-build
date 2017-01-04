@@ -53,7 +53,7 @@ function build_retroarch()
     make -j40 clean
     # ARM optimizations
     #./configure --help || exit 0
-    ./configure --enable-neon --enable-opengl --disable-vulkan --disable-gl --enable-gles --disable-cg --disable-v4l2 --disable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
+    ./configure --enable-neon --enable-opengl --disable-vulkan --enable-gles --disable-xvideo --disable-cg --disable-v4l2 --disable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-miniupnpc || exit -127
     time make -f Makefile -j16 || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..

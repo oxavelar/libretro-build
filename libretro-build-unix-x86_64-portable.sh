@@ -45,8 +45,8 @@ function build_retroarch()
     cd "${LIBRETRO_PATH}/retroarch"
     make -j40 clean
     # x86_64 optimizations
-    ./configure --help || exit 0
-    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-gl --disable-gles --disable-cg --disable-v4l2 --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets || exit -127
+    #./configure --help || exit 0
+    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-gles --disable-xvideo --disable-cg --disable-v4l2 --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus || exit -127
     time make -f Makefile -j16 || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
