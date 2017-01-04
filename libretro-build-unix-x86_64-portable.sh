@@ -4,7 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev mesa-common-dev libusb-dev libv4l-dev libopenvg1-mesa-dev libopenal-dev libxml2-dev libudev-dev libminiupnpc-dev
+# sudo apt-get install linux-libc-dev mesa-common-dev libgl1-mesa-dev libxml2-dev libudev-dev libvulkan-dev
 #
 
 
@@ -12,10 +12,11 @@ CURR_DIR=$(realpath ${0%/*})
 LIBRETRO_REPO="https://github.com/libretro/libretro-super"
 LIBRETRO_PATH="${CURR_DIR}/$(basename ${LIBRETRO_REPO})/"
 OUT_DIR="${CURR_DIR}/retroarch/"
+BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=jobserver -pipe"
+export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -pipe"
 export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic -mavx -mavx2"
 export CFLAGS="${CFLAGS}"
@@ -43,11 +44,10 @@ function build_retroarch()
 {
     # Build retroarch
     cd "${LIBRETRO_PATH}/retroarch"
-    make -j40 clean
-    # x86_64 optimizations
+    make -j${BUILD_THREADS} clean
     #./configure --help || exit 0
-    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus || exit -127
-    time make -f Makefile -j16 || exit -99
+    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-coreaudio --disable-roar --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-networking || exit -127
+    time make -f Makefile -j${BUILD_THREADS} || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
 }
@@ -76,7 +76,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j40 clean && make -j16 || continue
+        make -j${BUILD_THREADS} clean && make -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
