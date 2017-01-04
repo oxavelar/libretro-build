@@ -4,7 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev mesa-common-dev nvidia-cg-dev libusb-dev libv4l-dev libgl1-mesa-dev libegl1-mesa libopenvg1-mesa-dev libopenal-dev libxml2-dev libudev-dev libminiupnpc-dev
+# sudo apt-get install linux-libc-dev mesa-common-dev libusb-dev libv4l-dev libopenvg1-mesa-dev libopenal-dev libxml2-dev libudev-dev libminiupnpc-dev
 #
 
 
@@ -16,7 +16,7 @@ OUT_DIR="${CURR_DIR}/retroarch/"
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -mavx -mavx2 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=jobserver -pipe"
-#export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
+export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=broadwell"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"

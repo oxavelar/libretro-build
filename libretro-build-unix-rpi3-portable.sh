@@ -4,7 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev:armhf install mesa-common-dev:armhf libusb-dev:armhf libv4l-dev:armhf libgl1-mesa-dev:armhf libegl1-mesa-dev:armhf libgles2-mesa:armhf libgles2-mesa-dev:armhf libopenvg1-mesa:armhf libopenal-dev:armhf libxml2-dev:armhf libudev-dev:armhf
+# sudo apt-get install linux-libc-dev:armhf mesa-common-dev:armhf libusb-dev:armhf libv4l-dev:armhf libopenvg1-mesa:armhf libopenal-dev:armhf libxml2-dev:armhf libudev-dev:armhf
 #
 
 
@@ -33,9 +33,10 @@ export STRIP="${CROSS_COMPILE}strip"
 
 function prerequisites()
 {
-    # Make sure we have libretro super and get inside
+    # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
-    git clone ${LIBRETRO_REPO}
+    git clone ${LIBRETRO_REPO} || "${LIBRETRO_PATH}/libretro-fetch.sh"
+
     # Update the packages
     cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull
     cd ${LIBRETRO_PATH}/retroarch && git gc && git clean -dfx && git reset --hard && git pull
@@ -52,7 +53,7 @@ function build_retroarch()
     make -j40 clean
     # ARM optimizations
     #./configure --help || exit 0
-    ./configure --enable-neon --enable-opengl --disable-vulkan --disable-cg --disable-v4l2 --disable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
+    ./configure --enable-neon --enable-opengl --disable-vulkan --disable-gl --enable-gles --disable-cg --disable-v4l2 --disable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-x11 --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
     time make -f Makefile -j16 || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
