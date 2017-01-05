@@ -16,7 +16,7 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer"
-#export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
+export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
 export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -funsafe-math-optimizations"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
@@ -63,15 +63,16 @@ function build_retroarch()
 
 function build_libretro_select()
 {
-    cores=("snes9x2010"
-           "mupen64plus"
-           "mgba"
-           "ppsspp"
-           "nestopia"
-           "mednafen_psx"
-           "reicast"
-           "mame2014"
-           "glupen64"
+    cores=(
+            "snes9x2010"
+            "mupen64plus"
+            "mgba"
+            "ppsspp/libretro"
+            "nestopia/libretro"
+            "mednafen_psx"
+            "reicast"
+            "mame2014"
+            "glupen64"
     )
 
     for elem in "${cores[@]}"

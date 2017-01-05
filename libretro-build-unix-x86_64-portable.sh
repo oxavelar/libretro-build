@@ -17,7 +17,7 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -pipe"
-#export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
+export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic -mavx -mavx2"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
@@ -57,14 +57,15 @@ function build_retroarch()
 
 function build_libretro_select()
 {
-    cores=("snes9x2010"
-           "mupen64plus"
-           "mgba"
-           "ppsspp"
-           "nestopia"
-           "mednafen_psx"
-           "reicast"
-           "mame2014"
+    cores=(
+            "snes9x2010"
+            "mupen64plus"
+            "mgba"
+            "ppsspp/libretro"
+            "nestopia/libretro"
+            "mednafen_psx"
+            "reicast"
+            "mame2014"
     )
 
     # Remove LTO from cores, not working well yet
@@ -79,7 +80,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && HAVE_SSE=1 make -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
