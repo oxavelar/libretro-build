@@ -4,7 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev:armhf mesa-common-dev:armhf libxml2-dev:armhf libudev-dev:armhf
+# sudo apt-get install linux-libc-dev:armhf mesa-common-dev:armhf libxml2-dev:armhf libudev-dev:armhf libglu1-mesa-dev:armhf
 
 
 CURR_DIR=$(realpath ${0%/*})
@@ -16,8 +16,8 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer"
-export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
-export CFLAGS="${CFLAGS} -marm -march=armv8-a+crc -mcpu=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -funsafe-math-optimizations"
+#export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
+export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -funsafe-math-optimizations"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -44,6 +44,9 @@ function prerequisites()
     cd "${LIBRETRO_PATH}"
     rm -rf $(realpath "${OUT_DIR}")
     mkdir -p $(realpath "${OUT_DIR}")
+
+    # Temporary tmp path
+    mkdir -p "${OUT_DIR}/tmp"
 }
 
 function build_retroarch()
@@ -76,7 +79,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make platform="rpi" -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && make platform="rpi3" -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done

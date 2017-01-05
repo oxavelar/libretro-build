@@ -17,7 +17,7 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -pipe"
-export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
+#export CFLAGS="${CFLAGS} -fgraphite -fgraphite-identity -floop-block -floop-interchange -floop-nest-optimize -floop-strip-mine -ftree-loop-linear"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic -mavx -mavx2"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
@@ -38,6 +38,9 @@ function prerequisites()
     cd "${LIBRETRO_PATH}"
     rm -rf $(realpath "${OUT_DIR}")
     mkdir -p $(realpath "${OUT_DIR}")
+
+    # Temporary tmp path
+    mkdir -p "${OUT_DIR}/tmp"
 }
 
 function build_retroarch()
