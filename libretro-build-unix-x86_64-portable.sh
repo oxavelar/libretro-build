@@ -24,6 +24,12 @@ export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
 
+export CC="gcc-6"
+export CXX="g++-6"
+export AS="as"
+export AR="ar"
+export LINK="ld.gold"
+export STRIP="strip"
 
 function prerequisites()
 {
@@ -124,8 +130,8 @@ function extras_libretro()
     "${LIBRETRO_PATH}/retroarch/tools/cg2glsl.py" "${OUT_DIR}/shaders/shaders_cg" "${OUT_DIR}/shaders/shaders_glsl"
     
     # Strip out debug symbols from the shared libraries and main binary
-    strip --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${OUT_DIR}/cores/*.so
-    strip --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${OUT_DIR}/bin/retroarch
+    ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${OUT_DIR}/cores/*.so
+    ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${OUT_DIR}/bin/retroarch
 
     # Zip for distribution
     zip -rq "${OUT_DIR}/retroarch-x86_64.zip" "${OUT_DIR}"
