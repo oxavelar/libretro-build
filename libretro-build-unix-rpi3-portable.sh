@@ -4,7 +4,11 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev:armhf mesa-common-dev:armhf libxml2-dev:armhf libudev-dev:armhf libglu1-mesa-dev:armhf
+# sudo apt-get install linux-libc-dev:armhf mesa-common-dev:armhf libxml2-dev:armhf libudev-dev:armhf libglu1-mesa-dev:armhf libgl1-mesa-dev:armhf libegl1-mesa-dev:armhf libgles2-mesa-dev
+#
+# Linaro Workarounds:
+# ln -s /usr/include/GLES2/ /usr/include/arm-linux-gnueabihf/
+# ln -s /usr/include/KHR/ /usr/include/arm-linux-gnueabihf/
 
 
 CURR_DIR=$(realpath ${0%/*})
@@ -16,19 +20,20 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer"
-export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
-export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -funsafe-math-optimizations"
+#export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
+export CFLAGS="${CFLAGS} -marm -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad -funsafe-math-optimizations"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed"
 
-export CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
-export CC="${CROSS_COMPILE}gcc"
-export CXX="${CROSS_COMPILE}g++"
+#export CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
+export CROSS_COMPILE="${CURR_DIR}/prebuilt/gcc/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-"
+export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/prebuilt/rpi3-bcm2835-driver-libs -I/usr/include/arm-linux-gnueabihf/"
+export CXX="${CROSS_COMPILE}g++ -L${CURR_DIR}/prebuilt/rpi3-bcm2835-driver-libs -I/usr/include/arm-linux-gnueabihf/"
 export AS="${CROSS_COMPILE}as"
 export AR="${CROSS_COMPILE}ar"
-export LINK="${CROSS_COMPILE}ld"
+export LINK="${CROSS_COMPILE}gold"
 export STRIP="${CROSS_COMPILE}strip"
 
 function prerequisites()
@@ -134,7 +139,7 @@ function extras_libretro()
 
 # The main sequence of steps now go here ...
 prerequisites
-build_retroarch
+#build_retroarch
 ##build_libretro_all
 build_libretro_select
 install_libretro
