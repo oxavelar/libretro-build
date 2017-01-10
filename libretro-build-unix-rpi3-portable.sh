@@ -28,9 +28,8 @@ export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed"
 
 export CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
-#export CROSS_COMPILE="${CURR_DIR}/prebuilt/gcc/gcc-linaro-6.2.1-2016.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-"
-export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/prebuilt/ -I/usr/include/arm-linux-gnueabihf/"
-export CXX="${CROSS_COMPILE}g++ -L${CURR_DIR}/prebuilt/ -I/usr/include/arm-linux-gnueabihf/"
+export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/prebuilt/rpi3/ -I/usr/include/arm-linux-gnueabihf/"
+export CXX="${CROSS_COMPILE}g++ -L${CURR_DIR}/prebuilt/rpi3/ -I/usr/include/arm-linux-gnueabihf/"
 export AS="${CROSS_COMPILE}as"
 export AR="${CROSS_COMPILE}ar"
 export LINK="${CROSS_COMPILE}gold"
@@ -86,7 +85,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make platform="rpi3" -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && make platform="rpi" -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
