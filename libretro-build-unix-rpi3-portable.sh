@@ -4,11 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev:armhf mesa-common-dev:armhf libxml2-dev:armhf libudev-dev:armhf libglu1-mesa-dev:armhf libgl1-mesa-dev:armhf libegl1-mesa-dev:armhf libgles2-mesa-dev libz-dev:armhf libpng-dev:armhf libavformat-dev:armhf
-#
-# Linaro Workarounds:
-# ln -s /usr/include/GLES2/ /usr/include/arm-linux-gnueabihf/
-# ln -s /usr/include/KHR/ /usr/include/arm-linux-gnueabihf/
+# sudo apt-get install linux-libc-dev:armhf libz-dev:armhf libpng-dev:armhf libavformat-dev:armhf
 
 
 CURR_DIR=$(realpath ${0%/*})
@@ -28,8 +24,8 @@ export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed"
 
 export CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
-export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/ -I${CURR_DIR}/rpi-firmware/ -I/usr/include/arm-linux-gnueabihf/"
-export CXX="${CROSS_COMPILE}g++ -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/ -I${CURR_DIR}/rpi-firmware/ -I/usr/include/arm-linux-gnueabihf/"
+export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/lib/ -I${CURR_DIR}/rpi-firmware/hardfp/opt/vc/include/ -I/usr/include/arm-linux-gnueabihf/"
+export CXX="${CROSS_COMPILE}g++ -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/lib/ -I${CURR_DIR}/rpi-firmware/hardfp/opt/vc/include/ -I/usr/include/arm-linux-gnueabihf/"
 export AS="${CROSS_COMPILE}as"
 export AR="${CROSS_COMPILE}ar"
 export LINK="${CROSS_COMPILE}gold"
@@ -39,7 +35,7 @@ function prerequisites()
 {
     # Raspberry firmware include files used for compiling
     cd ${CURR_DIR}
-    git clone https://github.com/raspberrypi/firmware "rpi-firmware"
+    git clone -b master --single-branch "https://github.com/raspberrypi/firmware" "rpi-firmware"
     cd "rpi-firmware" && git gc && git clean -dfx && git reset --hard && git pull
 
     # Make sure we have libretro super and get inside, fetch if first time
@@ -91,7 +87,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make platform="rpi" -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && make platform="rpi3" -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
