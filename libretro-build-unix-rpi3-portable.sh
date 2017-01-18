@@ -4,7 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev:armhf libz-dev:armhf libpng-dev:armhf libavformat-dev:armhf
+# sudo apt-get install crossbuild-essential-armhf linux-libc-dev:armhf libz-dev:armhf libpng-dev:armhf libavformat-dev:armhf
 
 
 CURR_DIR=$(realpath ${0%/*})
@@ -27,7 +27,7 @@ export CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
 export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/lib/ -I${CURR_DIR}/rpi-firmware/hardfp/opt/vc/include/ -I/usr/include/arm-linux-gnueabihf/"
 export CXX="${CROSS_COMPILE}g++ -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/lib/ -I${CURR_DIR}/rpi-firmware/hardfp/opt/vc/include/ -I/usr/include/arm-linux-gnueabihf/"
 export AS="${CROSS_COMPILE}as"
-export AR="${CROSS_COMPILE}ar"
+export AR="${CROSS_COMPILE}gcc-ar"
 export LINK="${CROSS_COMPILE}ld"
 export STRIP="${CROSS_COMPILE}strip"
 
