@@ -88,7 +88,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         #git gc && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make platform="rpi3" HAVE_NEON=1 -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && make platform="rpi3" HAVE_NEON=1 NOSSE=1 -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
@@ -145,8 +145,8 @@ prerequisites
 #build_retroarch
 ##build_libretro_all
 build_libretro_select
-install_libretro
-extras_libretro
+#install_libretro
+#extras_libretro
 sync
 exit 0
 

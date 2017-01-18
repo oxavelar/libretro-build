@@ -16,7 +16,7 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -pipe"
+export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic -mavx -mavx2"
 export CFLAGS="${CFLAGS}"
@@ -27,7 +27,7 @@ export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flt
 export CC="gcc-6"
 export CXX="g++-6"
 export AS="as"
-export AR="ar"
+export AR="gcc-ar"
 export LINK="ld.gold"
 export STRIP="strip"
 
@@ -73,13 +73,6 @@ function build_libretro_select()
             "reicast"
             "mame2014"
     )
-
-    # Remove LTO from cores, not working well yet
-    export CFLAGS="${CFLAGS} -fno-lto"
-    export CFLAGS="${CFLAGS}"
-    export CXXFLAGS="${CFLAGS}"
-    export ASFLAGS="${CFLAGS}"
-    export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed"
 
     for elem in "${cores[@]}"
       do
