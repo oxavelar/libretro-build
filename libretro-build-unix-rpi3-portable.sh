@@ -17,7 +17,7 @@ export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
-export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -mvectorize-with-neon-quad"
+export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -71,7 +71,6 @@ function build_retroarch()
 function build_libretro_select()
 {
     cores=(
-            "fbalpha"
             "snes9x2010"
             "mupen64plus"
             "mgba"
@@ -80,6 +79,7 @@ function build_libretro_select()
             "mednafen_psx"
             "reicast"
             "mame2014"
+            "fbalpha"
             "glupen64"
     )
 

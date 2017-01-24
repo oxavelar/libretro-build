@@ -72,6 +72,7 @@ function build_libretro_select()
             "mednafen_psx"
             "reicast"
             "mame2014"
+            "fbalpha"
     )
 
 
