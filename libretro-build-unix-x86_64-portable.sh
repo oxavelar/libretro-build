@@ -75,10 +75,6 @@ function build_libretro_select()
             "fbalpha"
     )
 
-
-    local CFLAGS="${CFLAGS} -fno-fat-lto-objects -fno-lto"
-    local LDFLAGS="${LDFLAGS} -Wl,--no-undefined"
-
     for elem in "${cores[@]}"
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
