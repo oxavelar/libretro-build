@@ -80,7 +80,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && make HAVE_SSE=yes -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
