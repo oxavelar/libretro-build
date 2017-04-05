@@ -72,6 +72,7 @@ function build_libretro_select()
 {
     cores=(
             "snes9x2010"
+            "libretro-parallel_n64"
             "mupen64plus"
             "mgba"
             "ppsspp/libretro"
