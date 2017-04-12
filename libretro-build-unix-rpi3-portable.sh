@@ -36,7 +36,7 @@ function prerequisites()
     # Raspberry firmware include files used for compiling
     cd ${CURR_DIR}
     # git clone -b master --single-branch "https://github.com/raspberrypi/firmware" "rpi-firmware" \
-    #  || $(cd "rpi-firmware" && git gc && git clean -dfx && git reset --hard && git pull)
+    #  || $(cd "rpi-firmware" && git gc --prune=now && git clean -dfx && git reset --hard && git pull)
     
 
     # Make sure we have libretro super and get inside, fetch if first time
@@ -44,8 +44,8 @@ function prerequisites()
     git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
 
     # Update the packages
-    cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull
-    cd ${LIBRETRO_PATH}/retroarch && git gc && git clean -dfx && git reset --hard && git pull
+    cd "${LIBRETRO_PATH}" && git gc --prune=now && git clean -dfx && git reset --hard && git pull
+    cd ${LIBRETRO_PATH}/retroarch && git gc --prune=now && git clean -dfx && git reset --hard && git pull
 
     cd "${LIBRETRO_PATH}"
     rm -rf $(realpath "${OUT_DIR}")
@@ -88,7 +88,7 @@ function build_libretro_select()
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
-        #git gc && git clean -dfx && git reset --hard && git pull
+        git gc --prune=now && git clean -dfx && git reset --hard && git pull
         make -j${BUILD_THREADS} clean && make platform="rpi3" HAVE_NEON=1 NOSSE=1 -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;

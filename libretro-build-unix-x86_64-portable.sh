@@ -38,8 +38,8 @@ function prerequisites()
     git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
 
     # Update the packages
-    cd "${LIBRETRO_PATH}" && git gc && git clean -dfx && git reset --hard && git pull
-    cd ${LIBRETRO_PATH}/retroarch && git gc && git clean -dfx && git reset --hard && git pull
+    cd "${LIBRETRO_PATH}" && git gc --prune=now && git clean -dfx && git reset --hard && git pull
+    cd ${LIBRETRO_PATH}/retroarch && git gc --prune=now && git clean -dfx && git reset --hard && git pull
 
     cd "${LIBRETRO_PATH}"
     rm -rf $(realpath "${OUT_DIR}")
@@ -80,7 +80,7 @@ function build_libretro_select()
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
-        git gc && git clean -dfx && git reset --hard && git pull
+        git gc --prune=now && git clean -dfx && git reset --hard && git pull
         make -j${BUILD_THREADS} clean && make HAVE_SSE=yes -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
