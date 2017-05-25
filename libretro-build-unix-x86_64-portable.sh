@@ -4,7 +4,7 @@
 # retro in a portable Unix way.
 #
 # Requirements:
-# sudo apt-get install linux-libc-dev mesa-common-dev libgl1-mesa-dev libxml2-dev libudev-dev libz-dev libpng-dev libavformat-dev libvulkan-dev 
+# sudo apt-get install linux-libc-dev mesa-common-dev libgl1-mesa-dev libxml2-dev libudev-dev libz-dev libpng-dev libavformat-dev libvulkan-dev libclang-dev
 #
 
 
@@ -18,7 +18,7 @@ export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
-export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic -mavx -mavx2"
+export CFLAGS="${CFLAGS} -march=core-avx-i -mtune=generic"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -81,7 +81,7 @@ function build_libretro_select()
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core
         git gc --prune=now && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make HAVE_SSE=yes -j${BUILD_THREADS} || continue
+        make -j${BUILD_THREADS} clean && make -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
