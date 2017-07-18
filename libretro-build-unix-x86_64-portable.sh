@@ -18,7 +18,7 @@ export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
-export CFLAGS="${CFLAGS} -march=core-avx-i -mtune=generic"
+export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
 export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -55,7 +55,7 @@ function build_retroarch()
     cd "${LIBRETRO_PATH}/retroarch"
     make -j${BUILD_THREADS} clean
     #./configure --help || exit 0
-    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-coreaudio --disable-roar --enable-libxml2 --disable-ffmpeg --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-networking || exit -127
+    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-coreaudio --disable-roar --enable-libxml2 --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-networking || exit -127
     time make -f Makefile -j${BUILD_THREADS} || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
@@ -64,16 +64,16 @@ function build_retroarch()
 function build_libretro_select()
 {
     cores=(
-            "snes9x2010"
-            "parallel_n64"
+            "snes9x"
             "mupen64plus"
             "mgba"
             "ppsspp/libretro"
             "nestopia/libretro"
             "mednafen_psx"
             "reicast"
-            "mame2014"
+            "mame"
             "fbalpha"
+            "dolphin"
     )
 
     for elem in "${cores[@]}"
