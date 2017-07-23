@@ -66,24 +66,25 @@ function build_libretro_select()
     cores=(
             "snes9x"
             "mupen64plus"
+            "dolphin"
             "mgba"
-            "ppsspp/libretro"
-            "nestopia/libretro"
+            "ppsspp"
+            "nestopia"
             "mednafen_psx"
             "reicast"
             "mame"
             "fbalpha"
-            "dolphin"
     )
 
     for elem in "${cores[@]}"
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
-        # Update and reset the core
+        # Update and reset the core git repo
         git gc --prune=now && git clean -dfx && git reset --hard && git pull
-        make -j${BUILD_THREADS} clean && make -j${BUILD_THREADS} || continue
-        # Copy it over the build dir
-        find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
+        # Back on libretro super instructions which also copies the *.so
+        # https://buildbot.libretro.com/docs/compilation/ubuntu/
+        cd "${LIBRETRO_PATH}"
+        "${LIBRETRO_PATH}/libretro-build.sh" ${elem} || continue
       done
       cd ..
 }

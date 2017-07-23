@@ -53,7 +53,6 @@ function prerequisites()
 
     # Temporary tmp path
     mkdir -p "${OUT_DIR}/tmp"
-
 }
 
 function build_retroarch()
@@ -71,15 +70,15 @@ function build_retroarch()
 function build_libretro_select()
 {
     cores=(
-            "snes9x2010"
-            "parallel_n64"
+            "snes9x"
             "mupen64plus"
+            "dolphin"
             "mgba"
-            "ppsspp/libretro"
-            "nestopia/libretro"
+            "ppsspp"
+            "nestopia"
             "mednafen_psx"
             "reicast"
-            "mame2014"
+            "mame"
             "fbalpha"
             "glupen64"
     )
@@ -87,7 +86,7 @@ function build_libretro_select()
     for elem in "${cores[@]}"
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
-        # Update and reset the core
+        # Update and reset the core git repo
         git gc --prune=now && git clean -dfx && git reset --hard && git pull
         make -j${BUILD_THREADS} clean && make platform="rpi3" HAVE_NEON=1 NOSSE=1 -j${BUILD_THREADS} || continue
         # Copy it over the build dir
