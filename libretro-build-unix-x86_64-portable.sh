@@ -24,10 +24,10 @@ export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
 
-export CC="gcc-7"
-export CXX="g++-7"
+export CC="gcc-6"
+export CXX="g++-6"
 export AS="as"
-export AR="gcc-ar"
+export AR="gcc-ar-6"
 export LINK="ld.gold"
 export STRIP="strip"
 
