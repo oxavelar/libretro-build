@@ -122,8 +122,8 @@ function install_libretro()
     # Cleanup left-overs and any .git files for distribution
     rm -rf "${OUT_DIR}/tmp"
     ( find "${OUT_DIR}" -type d -name ".git" \
-      && find . -name ".gitignore" \
-      && find . -name ".gitmodules" ) | xargs rm -rf
+      && find "${OUT_DIR}" -name ".gitignore" \
+      && find "${OUT_DIR}" -name ".gitmodules" ) | xargs rm -rf
 }
 
 function extras_libretro()

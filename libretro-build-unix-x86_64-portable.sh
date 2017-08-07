@@ -18,16 +18,16 @@ export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
-export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
-export CFLAGS="${CFLAGS} -mavx -mavx2"
+export CFLAGS="${CFLAGS} -march=core2 -mtune=generic"
+export CFLAGS="${CFLAGS} -mfpmath=sse -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
 
-export CC="gcc-6"
-export CXX="g++-6"
+export CC="gcc-7"
+export CXX="g++-7"
 export AS="as"
-export AR="gcc-ar-6"
+export AR="gcc-ar-7"
 export LINK="ld.gold"
 export STRIP="strip"
 
@@ -116,8 +116,8 @@ function install_libretro()
     # Cleanup left-overs and any .git files for distribution
     rm -rf "${OUT_DIR}/tmp"
     ( find "${OUT_DIR}" -type d -name ".git" \
-      && find . -name ".gitignore" \
-      && find . -name ".gitmodules" ) | xargs rm -rf
+      && find "${OUT_DIR}" -name ".gitignore" \
+      && find "${OUT_DIR}" -name ".gitmodules" ) | xargs rm -rf
 }
 
 function extras_libretro()
