@@ -3,8 +3,8 @@
 
 import os
 import sys
-import zipfile
 import glob
+import zipfile
 from difflib import SequenceMatcher as sm
 
 roms_folder = '../roms/'
@@ -41,7 +41,7 @@ def get_file_name(file):
         return rfile
 
 
-def get_game_name(file, console=None, fuzz_ratio=0.70):
+def get_game_name(file, console=None, fuzz_ratio=0.60):
     """
     If there is a potential thumbnail that has very high fuzz ratio
     please return the updated name. Since retroarch uses specific
@@ -59,14 +59,14 @@ def get_game_name(file, console=None, fuzz_ratio=0.70):
     thumbs = [os.path.splitext(os.path.basename(t))[0] for t in thumbs]
     
     # Obtains the fuzz ratio of them all and rank them
-    fuzzed = tuple((t, sm(None, gamename, t).ratio()) for t in thumbs)
+    fuzzed = tuple((t, sm(None, gamename, t).quick_ratio()) for t in thumbs)
     fuzzed = sorted(fuzzed, key=lambda p: p[1], reverse=True)
     
     # Update if we find that our match looks good with the thumbs name
     for name, ratio in fuzzed:
         if ratio > fuzz_ratio:
             gamename = name
-        break
+            break
     
     return gamename
 
@@ -162,4 +162,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
