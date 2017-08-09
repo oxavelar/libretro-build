@@ -7,6 +7,7 @@ import glob
 import time
 import zipfile
 import difflib
+import functools
 
 roms_folder = '../roms/'
 playlists_folder = '../playlists/'
@@ -61,7 +62,10 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     
     # Obtains the fuzz ratio of them all and get the closest hit
     fuzz = lambda x, y: difflib.SequenceMatcher(None, x, y).quick_ratio()
-    fuzzed = tuple((t, fuzz(t, gamename)) for t in thumbs)
+    fuzzer = functools.partial(fuzz, gamename)
+    ratios = map(fuzzer, thumbs)
+    fuzzed = zip(thumbs, ratios)
+    
     name, ratio = max(fuzzed, key=lambda p: p[1]) if len(fuzzed) else tuple(('', 0))
     
     # Update if we find that our match looks good with the thumbs name
