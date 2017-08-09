@@ -4,6 +4,7 @@
 import os
 import sys
 import glob
+import time
 import zipfile
 from difflib import SequenceMatcher as sm
 
@@ -59,7 +60,8 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     thumbs = [os.path.splitext(os.path.basename(t))[0] for t in thumbs]
     
     # Obtains the fuzz ratio of them all and rank them
-    fuzzed = tuple((t, sm(None, gamename, t).quick_ratio()) for t in thumbs)
+    fuzz = lambda x, y: sm(None, x, y).quick_ratio()
+    fuzzed = tuple((t, fuzz(gamename, t)) for t in thumbs)
     fuzzed = sorted(fuzzed, key=lambda p: p[1], reverse=True)
     
     # Update if we find that our match looks good with the thumbs name
@@ -131,6 +133,7 @@ def update_playlists():
     populating *.lpl's regarding the games.
     """
     print('I: Updating retroarch *.lpl\'s ...')
+    time_start = time.time()
     for dirpath, dnames, fnames in os.walk(roms_folder):
         for f in fnames:
             # Extract the full filename path
@@ -139,7 +142,8 @@ def update_playlists():
             # Using the filename without extension as human name
             lpl_filename = console_name + '.lpl'
             lpl_entry_write(lpl_filename, retro_file, game_name)
-    print('I: Finished updating the retroarch playlists')
+    time_spent = time.time() - time_start
+    print('I: Finished updating the retroarch playlists in %0.3f seconds' % time_spent)
 
 
 def purge_playlists():
@@ -161,4 +165,5 @@ def main():
 
 
 if __name__ == '__main__':
+    t = time.time()
     main()
