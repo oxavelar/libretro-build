@@ -130,7 +130,7 @@ def update_playlists():
     Will traverse the ROM directory name and start
     populating *.lpl's regarding the games.
     """
-    print('I: Updating retroarch *.lpl\'s ...')
+    print('I: Generating dynamic retroarch *.lpl\'s ...')
     time_start = time.time()
     for dirpath, dnames, fnames in os.walk(roms_folder):
         for f in fnames:
@@ -141,7 +141,7 @@ def update_playlists():
             lpl_filename = console_name + '.lpl'
             lpl_entry_write(lpl_filename, retro_file, game_name)
     time_spent = time.time() - time_start
-    print('I: Finished updating the retroarch playlists in %0.3f seconds' % time_spent)
+    print('I: Updated the retroarch playlists in %0.3f seconds' % time_spent)
 
 
 def purge_playlists():
