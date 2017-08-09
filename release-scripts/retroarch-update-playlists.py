@@ -6,7 +6,7 @@ import sys
 import glob
 import time
 import zipfile
-from difflib import SequenceMatcher as sm
+import difflib
 
 roms_folder = '../roms/'
 playlists_folder = '../playlists/'
@@ -60,7 +60,7 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     thumbs = [os.path.splitext(os.path.basename(t))[0] for t in thumbs]
     
     # Obtains the fuzz ratio of them all and rank them
-    fuzz = lambda x, y: sm(None, x, y).quick_ratio()
+    fuzz = lambda x, y: difflib.SequenceMatcher(None, x, y).quick_ratio()
     fuzzed = tuple((t, fuzz(gamename, t)) for t in thumbs)
     fuzzed = sorted(fuzzed, key=lambda p: p[1], reverse=True)
     
