@@ -66,7 +66,7 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     for name, ratio in fuzzed:
         if ratio > fuzz_ratio:
             gamename = name
-            break
+        break
     
     return gamename
 
