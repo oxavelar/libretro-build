@@ -65,9 +65,10 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     name, ratio = max(fuzzed, key=lambda p: p[1]) if len(fuzzed) else tuple(('', 0))
     
     # Update if we find that our match looks good with the thumbs name
-    if ratio > fuzz_ratio: gamename = name
-    
-    return gamename
+    if ratio > fuzz_ratio:
+        return name
+    else:
+        return gamename
 
 
 def get_console_name(file):
