@@ -59,16 +59,13 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     thumbs = glob.glob(os.path.join(thumb_folder, '*.png'))
     thumbs = [os.path.splitext(os.path.basename(t))[0] for t in thumbs]
     
-    # Obtains the fuzz ratio of them all and rank them
+    # Obtains the fuzz ratio of them all and get the closest hit
     fuzz = lambda x, y: difflib.SequenceMatcher(None, x, y).quick_ratio()
-    fuzzed = tuple((t, fuzz(gamename, t)) for t in thumbs)
-    fuzzed = sorted(fuzzed, key=lambda p: p[1], reverse=True)
+    fuzzed = tuple((t, fuzz(t, gamename)) for t in thumbs)
+    name, ratio = max(fuzzed, key=lambda p: p[1]) if len(fuzzed) else tuple(('', 0))
     
     # Update if we find that our match looks good with the thumbs name
-    for name, ratio in fuzzed:
-        if ratio > fuzz_ratio:
-            gamename = name
-        break
+    if ratio > fuzz_ratio: gamename = name
     
     return gamename
 
