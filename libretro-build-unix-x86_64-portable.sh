@@ -18,8 +18,8 @@ export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export CFLAGS="-O3 -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -frename-registers -fweb -fgcse -fgcse-sm -fgcse-las -fivopts -foptimize-register-move -fipa-cp-clone -fipa-pta -fmodulo-sched -fmodulo-sched-allow-regmoves -fomit-frame-pointer -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
-export CFLAGS="${CFLAGS} -march=core2 -mtune=generic"
-export CFLAGS="${CFLAGS} -mfpmath=sse -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx"
+export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
+export CFLAGS="${CFLAGS} -mfpmath=sse -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mno-avx -mno-avx2 -mno-fma"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
 export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
@@ -102,6 +102,7 @@ function install_libretro()
     # Organize our files in a portable structure
     mkdir -p "${OUT_DIR}/bin" "${OUT_DIR}/cores-info" "${OUT_DIR}/cores-info" "${OUT_DIR}/cores" "${OUT_DIR}/shaders" "${OUT_DIR}/lib" "${OUT_DIR}/autoconfig/" "${OUT_DIR}/downloads/" "${OUT_DIR}/system/" "${OUT_DIR}/screenshots/" "${OUT_DIR}/assets/" "${OUT_DIR}/overlays/" "${OUT_DIR}/saves/" "${OUT_DIR}/roms/" "${OUT_DIR}/remaps/" "${OUT_DIR}/database/" "${OUT_DIR}/thumbnails/" "${OUT_DIR}/playlists"
     cp -av "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
+    cp -av "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
     cp -av "${OUT_DIR}/tmp/etc/." "${OUT_DIR}/config"
     cp -av "${OUT_DIR}/tmp/usr/local/share/retroarch/assets/." "${OUT_DIR}/assets"
     mv -vf "${OUT_DIR}/config/retroarch.cfg" "${OUT_DIR}/config/retroarch.cfg.bak"

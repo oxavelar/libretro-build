@@ -64,7 +64,7 @@ def get_game_name(file, console=None, fuzz_ratio=0.60):
     fuzz = lambda x, y: difflib.SequenceMatcher(None, y, x).quick_ratio()
     fuzzer = functools.partial(fuzz, gamename)
     ratios = map(fuzzer, thumbs)
-    fuzzed = zip(thumbs, ratios)
+    fuzzed = tuple(zip(thumbs, ratios))
     
     name, ratio = max(fuzzed, key=lambda p: p[1]) if len(fuzzed) else tuple(('', 0))
     
