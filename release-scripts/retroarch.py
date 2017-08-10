@@ -16,7 +16,15 @@ os.environ['LD_LIBRARY_PATH'] = os.path.join(retro_dir, 'lib')
 
 retro_cmd = retro_bin + ' --config ' + retro_cfg
 retro_ref = 'python ' + retro_ref
+media_stop = 'systemctl stop kodi'
+media_start = 'systemctl start kodi'
 
-subprocess.call([retro_ref], shell=True)
-subprocess.call([retro_cmd], shell=True)
+try:
+    subprocess.call([retro_ref], shell=True)
+    os.system(media_stop)
+    subprocess.call([retro_cmd], shell=True)
+except KeyboardInterrupt:
+    pass
+finally:
+    os.system(media_start)
 
