@@ -16,8 +16,8 @@ os.environ['LD_LIBRARY_PATH'] = os.path.join(retro_dir, 'lib')
 
 retro_cmd = retro_bin + ' --config ' + retro_cfg
 retro_ref = 'python ' + retro_ref
-media_stop = 'pkill -SIGSTOP kodi.bin'
-media_start = 'systemctl -SIGCONT kodi.bin'
+media_stop = 'systemctl stop kodi'
+media_start = 'systemctl start kodi'
 
 
 def main():

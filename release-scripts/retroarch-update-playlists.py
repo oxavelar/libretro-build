@@ -43,7 +43,7 @@ def get_file_name(file):
         return rfile
 
 
-def get_game_name(file, console=None, fuzz_ratio=0.60):
+def get_game_name(file, console=None, fuzz_ratio=0.67):
     """
     If there is a potential thumbnail that has very high fuzz ratio
     please return the updated name. Since retroarch uses specific
