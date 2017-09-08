@@ -27,22 +27,30 @@ def retroarch_launch():
     subprocess.call([retro_cmd], shell=True)
 
 
+def systemd_service_ready():
+    """ Used to detect if we have already launched as systemd """
+    query_cmd = 'systemctl | grep -q "%s"' % __file__
+    if (os.system(query_cmd) == 0):
+        return True
+    else:
+        return False
+
+
 def systemd_service_spawn():
     """ Allows us to suspend Kodi by spawning as a systemd unit """
     try:
         import kodi
-        #systemd_cmd = 'systemd-run --scope ' + os.path.abspath(__file__)
-        systemd_cmd = 'systemd-run --unit=retroarch.service ' + os.path.abspath(__file__)
+        systemd_cmd = 'systemd-run --scope --nice=-5 ' + os.path.abspath(__file__)
         os.system(systemd_cmd)
     except ImportError:
-       exit(-17)
+        exit(-17)
 
 
-def main():
+def retroarch_main():
     """ Steps that pauses the media center and executes retroarch """
 
-    media_pause = lambda: os.system('pkill -SIGSTOP kodi.bin')
-    media_start = lambda: os.system('pkill -SIGCONT kodi.bin')
+    media_pause = lambda: os.system('systemd stop  kodi')
+    media_start = lambda: os.system('systemd start kodi')
 
     try:
         retroarch_update()
@@ -57,8 +65,10 @@ def main():
 
 
 if __name__ == '__main__':
-    if '--systemd' in sys.argv:
+    """ When we detect LibreELEC this will start in a special way """
+    if not systemd_service_ready() and 'LibreELEC' in os.uname():
         systemd_service_spawn()
     else:
-        main()
+        print('Executing normally')
+        retroarch_main()
 
