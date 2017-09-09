@@ -39,7 +39,6 @@ def systemd_service_ready():
 def systemd_service_spawn():
     """ Allows us to suspend Kodi by spawning as a systemd unit """
     try:
-        import kodi
         systemd_cmd = 'systemd-run --scope --nice=-5 ' + os.path.abspath(__file__)
         os.system(systemd_cmd)
     except ImportError:
@@ -49,8 +48,8 @@ def systemd_service_spawn():
 def retroarch_main():
     """ Steps that pauses the media center and executes retroarch """
 
-    media_pause = lambda: os.system('systemd stop  kodi')
-    media_start = lambda: os.system('systemd start kodi')
+    media_pause = lambda: os.system('systemctl stop  kodi')
+    media_start = lambda: os.system('systemctl start kodi')
 
     try:
         retroarch_update()
