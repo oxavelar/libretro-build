@@ -31,7 +31,13 @@ export AR="gcc-ar-7"
 export LINK="ld.gold"
 export STRIP="strip"
 
-alias gitclean="git gc --prune=now --aggressive && git repack && git clean -dfx && git reset --hard"
+
+function gitclean()
+{
+    git gc --prune=now --aggressive
+    git repack && git clean -dfx
+    git reset --hard
+}
 
 function prerequisites()
 {

@@ -31,7 +31,13 @@ export AR="${CROSS_COMPILE}gcc-ar"
 export LINK="${CROSS_COMPILE}ld"
 export STRIP="${CROSS_COMPILE}strip"
 
-alias gitclean="git gc --prune=now --aggressive && git repack && git clean -dfx && git reset --hard"
+
+function gitclean()
+{
+    git gc --prune=now --aggressive
+    git repack && git clean -dfx
+    git reset --hard
+}
 
 function prerequisites()
 {
