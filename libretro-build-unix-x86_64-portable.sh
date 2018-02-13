@@ -31,6 +31,8 @@ export AR="gcc-ar-7"
 export LINK="ld.gold"
 export STRIP="strip"
 
+alias gitclean="git gc --prune=now --aggressive && git repack && git clean -dfx && git reset --hard"
+
 function prerequisites()
 {
     # Make sure we have libretro super and get inside, fetch if first time
@@ -38,8 +40,8 @@ function prerequisites()
     git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
 
     # Update the packages
-    cd "${LIBRETRO_PATH}" && git gc --prune=now && git clean -dfx && git reset --hard && git pull
-    cd ${LIBRETRO_PATH}/retroarch && git gc --prune=now && git clean -dfx && git reset --hard && git pull
+    cd "${LIBRETRO_PATH}" && gitclean && git pull
+    cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull
 
     cd "${LIBRETRO_PATH}"
     rm -rf $(realpath "${OUT_DIR}")
@@ -80,7 +82,7 @@ function build_libretro_select()
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core git repo
-        git gc --prune=now && git clean -dfx && git reset --hard && git pull
+        gitclean && git pull
         # Back on libretro super instructions which also copies the *.so
         # https://buildbot.libretro.com/docs/compilation/ubuntu/
         cd "${LIBRETRO_PATH}"
@@ -137,11 +139,11 @@ function extras_libretro()
 
 # The main sequence of steps now go here ...
 prerequisites
-build_retroarch
+#build_retroarch
 ##build_libretro_all
 build_libretro_select
-install_libretro
-extras_libretro
+#install_libretro
+#extras_libretro
 sync
 exit 0
 

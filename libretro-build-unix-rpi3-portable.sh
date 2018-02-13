@@ -31,6 +31,8 @@ export AR="${CROSS_COMPILE}gcc-ar"
 export LINK="${CROSS_COMPILE}ld"
 export STRIP="${CROSS_COMPILE}strip"
 
+alias gitclean="git gc --prune=now --aggressive && git repack && git clean -dfx && git reset --hard"
+
 function prerequisites()
 {
     # Raspberry firmware include files used for compiling
@@ -44,8 +46,8 @@ function prerequisites()
     git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
 
     # Update the packages
-    cd "${LIBRETRO_PATH}" && git gc --prune=now && git clean -dfx && git reset --hard && git pull
-    cd ${LIBRETRO_PATH}/retroarch && git gc --prune=now && git clean -dfx && git reset --hard && git pull
+    cd "${LIBRETRO_PATH}" && gitclean && git pull
+    cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull
 
     cd "${LIBRETRO_PATH}"
     rm -rf $(realpath "${OUT_DIR}")
@@ -87,7 +89,7 @@ function build_libretro_select()
       do
         cd "${LIBRETRO_PATH}/libretro-${elem}"
         # Update and reset the core git repo
-        git gc --prune=now && git clean -dfx && git reset --hard && git pull
+        gitclean && git pull
         make -j${BUILD_THREADS} clean && make platform="rpi3" HAVE_NEON=1 NOSSE=1 -j${BUILD_THREADS} || continue
         # Copy it over the build dir
         find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
@@ -108,6 +110,7 @@ function install_libretro()
     # Organize our files in a portable structure
     mkdir -p "${OUT_DIR}/bin" "${OUT_DIR}/cores-info" "${OUT_DIR}/cores-info" "${OUT_DIR}/cores" "${OUT_DIR}/shaders" "${OUT_DIR}/lib" "${OUT_DIR}/autoconfig/" "${OUT_DIR}/downloads/" "${OUT_DIR}/system/" "${OUT_DIR}/screenshots/" "${OUT_DIR}/assets/" "${OUT_DIR}/overlays/" "${OUT_DIR}/saves/" "${OUT_DIR}/roms/" "${OUT_DIR}/remaps/" "${OUT_DIR}/database/" "${OUT_DIR}/thumbnails/" "${OUT_DIR}/playlists"
     cp -av "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
+    cp -av "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
     cp -av "${OUT_DIR}/tmp/etc/." "${OUT_DIR}/config"
     cp -av "${OUT_DIR}/tmp/usr/local/share/retroarch/assets/." "${OUT_DIR}/assets"
     mv -vf "${OUT_DIR}/config/retroarch.cfg" "${OUT_DIR}/config/retroarch.cfg.bak"
