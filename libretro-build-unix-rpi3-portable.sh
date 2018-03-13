@@ -151,11 +151,11 @@ function extras_libretro()
 
 # The main sequence of steps now go here ...
 prerequisites
-#build_retroarch
+build_retroarch
 ##build_libretro_all
 build_libretro_select
-#install_libretro
-#extras_libretro
+install_libretro
+extras_libretro
 sync
 exit 0
 
