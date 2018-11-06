@@ -16,13 +16,13 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O3 -finline-functions -fomit-frame-pointer -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -fweb -fgcse -fgcse-sm -fgcse-las -fgcse-after-reload -fivopts -fno-section-anchors -fsched-spec-load -ftree-loop-distribution -ftree-loop-distribute-patterns -ftree-loop-im -ftree-loop-if-convert -fpredictive-commoning -foptimize-register-move -fipa-cp-clone -fipa-pta -fsplit-paths -fmodulo-sched -fmodulo-sched-allow-regmoves -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
+export CFLAGS="-O2 -g0 -finline-functions -fomit-frame-pointer -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -fweb -fgcse -fgcse-sm -fgcse-las -fgcse-after-reload -fivopts -fno-section-anchors -fsched-spec-load -ftree-loop-distribution -ftree-loop-distribute-patterns -ftree-loop-im -ftree-loop-if-convert -fpredictive-commoning -foptimize-register-move -fipa-cp-clone -fipa-pta -fsplit-paths -fmodulo-sched -fmodulo-sched-allow-regmoves -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
 export CFLAGS="${CFLAGS} -mfpmath=sse -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mfma"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
-export LDFLAGS="${LDFLAGS} -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
+export LDFLAGS="${LDFLAGS} -Wl,-O2 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-flto"
 
 export CC="gcc-8"
 export CXX="g++-8"
