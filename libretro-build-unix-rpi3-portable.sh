@@ -69,7 +69,7 @@ function build_retroarch()
     cd "${LIBRETRO_PATH}/retroarch"
     make -j${BUILD_THREADS} clean
     #./configure --help || exit 0
-    ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-libxml2 --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus --disable-networking || exit -127
+    ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
     time make -f Makefile -j${BUILD_THREADS} || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
@@ -84,6 +84,7 @@ function build_libretro_select()
             "mgba"
             "ppsspp"
             "nestopia"
+            "play!"
             "mednafen_psx"
             "reicast"
             "mame"

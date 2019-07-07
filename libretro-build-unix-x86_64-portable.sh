@@ -16,7 +16,7 @@ BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O2 -g0 -finline-functions -fomit-frame-pointer -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -fweb -fgcse -fgcse-sm -fgcse-las -fgcse-after-reload -fivopts -fno-section-anchors -fsched-spec-load -ftree-loop-distribution -ftree-loop-distribute-patterns -ftree-loop-im -ftree-loop-if-convert -fpredictive-commoning -foptimize-register-move -fipa-cp-clone -fipa-pta -fsplit-paths -fmodulo-sched -fmodulo-sched-allow-regmoves -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
+export CFLAGS="-O3 -finline-functions -fomit-frame-pointer -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -fweb -fgcse -fgcse-sm -fgcse-las -fgcse-after-reload -fivopts -fno-section-anchors -fsched-spec-load -ftree-loop-distribution -ftree-loop-distribute-patterns -ftree-loop-im -ftree-loop-if-convert -fpredictive-commoning -foptimize-register-move -fipa-cp-clone -fipa-pta -fsplit-paths -fmodulo-sched -fmodulo-sched-allow-regmoves -flto=${BUILD_THREADS} -fuse-ld=gold -fuse-linker-plugin -pipe"
 export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
 export CFLAGS="${CFLAGS} -march=broadwell -mtune=generic"
 export CFLAGS="${CFLAGS} -mfpmath=sse -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1 -msse4.2 -mavx -mavx2 -mfma"
@@ -63,7 +63,7 @@ function build_retroarch()
     cd "${LIBRETRO_PATH}/retroarch"
     make -j${BUILD_THREADS} clean
     #./configure --help || exit 0
-    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --enable-libxml2 --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-dbus || exit -127
+    ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
     time make -f Makefile -j${BUILD_THREADS} || exit -99
     make DESTDIR="${OUT_DIR}/tmp" install
     cd ..
@@ -78,6 +78,7 @@ function build_libretro_select()
             "mgba"
             "ppsspp"
             "nestopia"
+            "play!"
             "mednafen_psx"
             "reicast"
             "mame"
