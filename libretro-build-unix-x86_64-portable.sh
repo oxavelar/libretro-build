@@ -100,7 +100,6 @@ function build_libretro_select()
 
 function build_libretro_all()
 {
-    "${LIBRETRO_PATH}/libretro-fetch.sh"
     "${LIBRETRO_PATH}/libretro-build.sh"
 }
 
