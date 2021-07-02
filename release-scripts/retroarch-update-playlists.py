@@ -108,14 +108,15 @@ def get_console_name(file):
 
 def lpl_entry_write(playlist, path, name):
     """
+    https://docs.libretro.com/guides/roms-playlists-thumbnails
+
     The formatting of the *.lpl files of retroarch is similar to:
-    
+
         (ROM Path)
         (ROM Name)
         DETECT
         DETECT
-        0|crc
-        
+
     Using this to write the specific entry and playlist.
     """
     playlist = os.path.join(playlists_folder, playlist)
@@ -125,7 +126,6 @@ def lpl_entry_write(playlist, path, name):
         f.write(name + '\n')
         f.write('DETECT' + '\n')
         f.write('DETECT' + '\n')
-        f.write('0|crc' + '\n')
         f.write('\n')
 
 
