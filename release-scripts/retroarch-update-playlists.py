@@ -116,6 +116,7 @@ def lpl_entry_write(playlist, path, name):
         (ROM Name)
         DETECT
         DETECT
+        0|crc
 
     Using this to write the specific entry and playlist.
     """
@@ -126,6 +127,7 @@ def lpl_entry_write(playlist, path, name):
         f.write(name + '\n')
         f.write('DETECT' + '\n')
         f.write('DETECT' + '\n')
+        f.write('0|crc' + '\n')
         f.write('\n')
 
 
