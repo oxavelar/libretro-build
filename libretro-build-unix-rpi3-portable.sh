@@ -6,22 +6,21 @@
 # Requirements:
 # sudo apt-get install crossbuild-essential-armhf linux-libc-dev:armhf libz-dev:armhf libpng-dev:armhf libavformat-dev:armhf
 
+set -e -x
 
 CURR_DIR=$(realpath ${0%/*})
 LIBRETRO_REPO="https://github.com/libretro/libretro-super"
-LIBRETRO_PATH="${CURR_DIR}/$(basename ${LIBRETRO_REPO})/"
-OUT_DIR="${CURR_DIR}/retroarch/"
-BUILD_THREADS=$(grep -c cores /proc/cpuinfo)
+LIBRETRO_PATH="${CURR_DIR}/$(basename ${LIBRETRO_REPO})"
+OUT_DIR="${CURR_DIR}/retroarch"
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
-export CFLAGS="-O2 -g0 -finline-functions -fomit-frame-pointer -ftree-vectorize -ftree-slp-vectorize -fvect-cost-model -ftree-partial-pre -fweb -fgcse -fgcse-sm -fgcse-las -fgcse-after-reload -fivopts -fsection-anchors -fsched-spec-load -ftree-loop-distribution -ftree-loop-distribute-patterns -ftree-loop-im -ftree-loop-if-convert -fpredictive-commoning -foptimize-register-move -fipa-cp-clone -fipa-pta -fsplit-paths -fmodulo-sched -fmodulo-sched-allow-regmoves"
-export CFLAGS="${CFLAGS} -fgraphite-identity -ftree-loop-linear -floop-interchange -floop-strip-mine -floop-block"
+export CFLAGS="-O3"
 export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad"
-export CFLAGS="${CFLAGS}"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
-#export LDFLAGS="${LDFLAGS} -Wl,-O2 -Wl,--hash-style=gnu -Wl,--as-needed"
+export LDFLAGS="${LDFLAGS} -Wl,-O3 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,--gc-sections"
+export LDFLAGS="${LDFLAGS} -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -Wl,-fuse-ld=gold -Wl,-flto"
 
 export CROSS_COMPILE="/usr/bin/arm-linux-gnueabihf-"
 export CC="${CROSS_COMPILE}gcc -L${CURR_DIR}/rpi-firmware/hardfp/opt/vc/lib/ -I${CURR_DIR}/rpi-firmware/hardfp/opt/vc/include/ -I/usr/include/arm-linux-gnueabihf/"
@@ -49,59 +48,55 @@ function prerequisites()
 
     # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
-    git clone ${LIBRETRO_REPO} && $(${LIBRETRO_PATH};"${LIBRETRO_PATH}/libretro-fetch.sh")
+    git clone "${LIBRETRO_REPO}" || true
 
     # Update the packages
-    cd "${LIBRETRO_PATH}" && gitclean && git pull
-    cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull
+    ( cd ${LIBRETRO_PATH} && gitclean && git pull )
+    ( cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull )
 
-    cd "${LIBRETRO_PATH}"
-    rm -rf $(realpath "${OUT_DIR}")
-    mkdir -p $(realpath "${OUT_DIR}")
+    # Pull dependencies
+    ( cd "${LIBRETRO_PATH}" && ./libretro-fetch.sh )
 
-    # Temporary tmp path
+    # Prepare build path
+    rm -rf $(realpath "${OUT_DIR}") && mkdir -p $(realpath "${OUT_DIR}")
+
+    # Temporary build path
     mkdir -p "${OUT_DIR}/tmp"
 }
 
 function build_retroarch()
 {
     # Build retroarch
-    cd "${LIBRETRO_PATH}/retroarch"
-    make -j${BUILD_THREADS} clean
-    #./configure --help || exit 0
-    ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
-    time make -f Makefile -j${BUILD_THREADS} || exit -99
-    make DESTDIR="${OUT_DIR}/tmp" install
-    cd ..
+    ( cd "${LIBRETRO_PATH}/retroarch"
+      make -j clean
+      #./configure --help ; exit -1
+      ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
+      time make -f Makefile -j || exit -99
+      make DESTDIR="${OUT_DIR}/tmp" install )
 }
 
 function build_libretro_select()
 {
     cores=(
             "snes9x"
-            "mupen64plus"
+            "mupen64plus_next"
             "dolphin"
             "mgba"
             "ppsspp"
             "nestopia"
-            "play!"
-            "mednafen_psx"
-            "reicast"
+            "beetle_psx"
             "mame"
-            "fbalpha"
-            "glupen64"
     )
 
     for elem in "${cores[@]}"
       do
-        cd "${LIBRETRO_PATH}/libretro-${elem}"
-        # Update and reset the core git repo
-        gitclean && git pull
-        make -j${BUILD_THREADS} clean && make platform="rpi3" HAVE_NEON=1 NOSSE=1 -j${BUILD_THREADS} || continue
-        # Copy it over the build dir
-        find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
+        ( cd "${LIBRETRO_PATH}/libretro-${elem}"
+          # Update and reset the core git repo
+          gitclean && git pull
+          make -j clean && make platform="rpi3" HAVE_NEON=1 NOSSE=1 -j${BUILD_THREADS} || continue
+          # Copy it over the build dir
+          find . -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/tmp/" 2> /dev/null \;
       done
-      cd ..
 }
 
 function build_libretro_all()
@@ -114,19 +109,35 @@ function install_libretro()
     "${LIBRETRO_PATH}/libretro-install.sh" "${OUT_DIR}"
 
     # Organize our files in a portable structure
-    mkdir -p "${OUT_DIR}/bin" "${OUT_DIR}/cores-info" "${OUT_DIR}/cores-info" "${OUT_DIR}/cores" "${OUT_DIR}/shaders" "${OUT_DIR}/lib" "${OUT_DIR}/autoconfig/" "${OUT_DIR}/downloads/" "${OUT_DIR}/system/" "${OUT_DIR}/screenshots/" "${OUT_DIR}/assets/" "${OUT_DIR}/overlays/" "${OUT_DIR}/saves/" "${OUT_DIR}/roms/" "${OUT_DIR}/remaps/" "${OUT_DIR}/database/" "${OUT_DIR}/thumbnails/" "${OUT_DIR}/playlists"
-    cp -av "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
-    cp -av "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
-    cp -av "${OUT_DIR}/tmp/etc/." "${OUT_DIR}/config"
-    cp -av "${OUT_DIR}/tmp/usr/local/share/retroarch/assets/." "${OUT_DIR}/assets"
-    mv -vf "${OUT_DIR}/config/retroarch.cfg" "${OUT_DIR}/config/retroarch.cfg.bak"
+    mkdir -p "${OUT_DIR}/bin" \
+             "${OUT_DIR}/cores-info" \
+             "${OUT_DIR}/cores" \
+             "${OUT_DIR}/shaders" \
+             "${OUT_DIR}/lib" \
+             "${OUT_DIR}/autoconfig/" \
+             "${OUT_DIR}/downloads/" \
+             "${OUT_DIR}/system/" \
+             "${OUT_DIR}/screenshots/" \
+             "${OUT_DIR}/assets/" \
+             "${OUT_DIR}/overlays/" \
+             "${OUT_DIR}/saves/" \
+             "${OUT_DIR}/roms/" \
+             "${OUT_DIR}/remaps/" \
+             "${OUT_DIR}/database/" \
+             "${OUT_DIR}/thumbnails/" \
+             "${OUT_DIR}/playlists"
+    cp -avf "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
+    cp -avf "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
+    cp -avf "${OUT_DIR}/tmp/etc/." "${OUT_DIR}/config"
+    cp -avf "${OUT_DIR}/tmp/usr/local/share/retroarch/assets/." "${OUT_DIR}/assets"
+    mv -vff "${OUT_DIR}/config/retroarch.cfg" "${OUT_DIR}/config/retroarch.cfg.bak"
     find "${OUT_DIR}" -name "*.info" -exec mv -vf \{\} "${OUT_DIR}/cores-info/" 2> /dev/null \;
     find "${OUT_DIR}" -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/cores/" 2> /dev/null \;
 
     # Moving prebuilts
-    cp -av "${LIBRETRO_PATH}/retroarch/media/shaders_cg" "${OUT_DIR}/shaders"
-    cp -av "${LIBRETRO_PATH}/retroarch/media/autoconfig" "${OUT_DIR}/autoconfig/joypad"
-    cp -av "${LIBRETRO_PATH}/retroarch/media/libretrodb/." "${OUT_DIR}/database"
+    cp -avf "${LIBRETRO_PATH}/retroarch/media/shaders_cg" "${OUT_DIR}/shaders"
+    cp -avf "${LIBRETRO_PATH}/retroarch/media/autoconfig" "${OUT_DIR}/autoconfig/joypad"
+    cp -avf "${LIBRETRO_PATH}/retroarch/media/libretrodb/." "${OUT_DIR}/database"
 
     # Cleanup left-overs and any .git files for distribution
     rm -rf "${OUT_DIR}/tmp"

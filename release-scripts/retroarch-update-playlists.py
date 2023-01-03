@@ -7,6 +7,7 @@ import glob
 import time
 import zipfile
 import difflib
+import platform
 import functools
 
 roms_folder = '../roms/'
@@ -33,7 +34,7 @@ def get_file_name(file):
     rfile = os.path.relpath(file)
     
     # Workaround for Linux where absolute path is needed
-    if sys.platform == 'linux2': rfile = os.path.abspath(file)
+    if platform.system() == 'Linux': rfile = os.path.abspath(file)
     
     # Figure out the retroarch's filename to use
     if file.endswith('.zip'):

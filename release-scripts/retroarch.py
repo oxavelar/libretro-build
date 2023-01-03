@@ -47,20 +47,14 @@ def systemd_service_spawn():
 
 
 def retroarch_main():
-    """ Steps that pauses the media center and executes retroarch """
-
-    media_pause = lambda: os.system('systemctl stop  kodi')
-    media_start = lambda: os.system('systemctl start kodi')
-
+    """ Steps to execute retroarch """
     try:
         retroarch_update()
-        media_pause()
         retroarch_launch()
     except KeyboardInterrupt:
         pass
     finally:
         pass
-        media_start()
         exit(0)
 
 
