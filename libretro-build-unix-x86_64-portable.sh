@@ -114,11 +114,8 @@ function install_libretro()
              "${OUT_DIR}/screenshots/" \
              "${OUT_DIR}/assets/" \
              "${OUT_DIR}/overlays/" \
-             "${OUT_DIR}/saves/" \
-             "${OUT_DIR}/roms/" \
              "${OUT_DIR}/remaps/" \
              "${OUT_DIR}/database/" \
-             "${OUT_DIR}/thumbnails/" \
              "${OUT_DIR}/playlists"
     cp -avf "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
     cp -avf "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
