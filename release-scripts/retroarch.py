@@ -63,6 +63,5 @@ if __name__ == '__main__':
     if not systemd_service_ready() and 'LibreELEC' in os.uname():
         systemd_service_spawn()
     else:
-        print('Executing normally')
         retroarch_main()
 
