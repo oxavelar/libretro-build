@@ -125,6 +125,7 @@ function install_libretro()
              "${OUT_DIR}/playlists"
     cp -avf "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
     cp -avf "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
+    cp -avf "${OUT_DIR}/../release-package/." "${OUT_DIR}/bin"
     cp -avf "${OUT_DIR}/tmp/etc/." "${OUT_DIR}/config"
     cp -avf "${OUT_DIR}/tmp/usr/local/share/retroarch/assets/." "${OUT_DIR}/assets"
     mv -vff "${OUT_DIR}/config/retroarch.cfg" "${OUT_DIR}/config/retroarch.cfg.bak"

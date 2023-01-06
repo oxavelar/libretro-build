@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=RetroArch
+Comment=Multi-Engine Platform
+Path=/mnt/retroarch/bin
+Exec=/mnt/retroarch/bin/retroarch.py
+Icon=/mnt/retroarch/bin/retroarch.png
+Terminal=true
+Keywords=multi;engine;emulator;xmb;
+Categories=Game;Emulator;
