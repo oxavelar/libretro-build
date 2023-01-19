@@ -12,7 +12,7 @@ set -e -x
 CURR_DIR=$(realpath ${0%/*})
 LIBRETRO_REPO="https://github.com/libretro/libretro-super"
 LIBRETRO_PATH="${CURR_DIR}/$(basename ${LIBRETRO_REPO})"
-OUT_DIR="${CURR_DIR}/retroarch"
+DISTDIR="${CURR_DIR}/retroarch"
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
@@ -52,10 +52,10 @@ function prerequisites()
     ( cd "${LIBRETRO_PATH}" && ./libretro-fetch.sh )
 
     # Prepare build path
-    rm -rf $(realpath "${OUT_DIR}") && mkdir -p $(realpath "${OUT_DIR}")
+    rm -rf $(realpath "${DISTDIR}") && mkdir -p $(realpath "${DISTDIR}")
 
     # Temporary build path
-    mkdir -p "${OUT_DIR}/tmp"
+    mkdir -p "${DISTDIR}/tmp"
 }
 
 function build_retroarch()
@@ -64,9 +64,9 @@ function build_retroarch()
     ( cd "${LIBRETRO_PATH}/retroarch" && 
       make -j clean
       #./configure --help ; exit -1
-      ./configure --enable-sse --enable-opengl --enable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-builtinflac --enable-builtinzlib || exit -127
+      ./configure --enable-sse --enable-opengl --enable-vulkan --disable-ffmpeg --disable-videoprocessor --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-builtinflac --enable-builtinzlib || exit -127
       time make -f Makefile -j || exit -99
-      make DESTDIR="${OUT_DIR}/tmp" install )
+      make DESTDIR="${DISTDIR}/tmp" install )
 }
 
 function build_libretro_select()
@@ -82,80 +82,75 @@ function build_libretro_select()
             "mame"
     )
 
-    for elem in "${cores[@]}"
-      do
-        ( cd "${LIBRETRO_PATH}/libretro-${elem}"
-          # Update and reset the core git repo
-          gitclean && git pull
-          # Back on libretro super instructions which also copies the *.so
-          # https://buildbot.libretro.com/docs/compilation/ubuntu/
-          cd "${LIBRETRO_PATH}" && ./libretro-build.sh ${elem} ) || continue
-      done
-}
+    ( cd "${LIBRETRO_PATH}" && echo -n "" > .cores-recipe
+      # Select core recipes into a temporary recipe
+      for core in "${cores[@]}"
+        do
+          sed -n "/^${core}\s/p" recipes/linux/cores-linux-x64-generic >> .cores-recipe
+        done
 
-function build_libretro_all()
-{
-    "${LIBRETRO_PATH}/libretro-build.sh"
+      # Build the list
+      cp -af recipes/linux/cores-linux-x86-generic.conf .cores-recipe.conf
+      FORCE=YES EXIT_ON_ERROR=0 ./libretro-buildbot-recipe.sh .cores-recipe )
 }
 
 function install_libretro()
 {
-    "${LIBRETRO_PATH}/libretro-install.sh" "${OUT_DIR}"
+    "${LIBRETRO_PATH}/libretro-install.sh" "${DISTDIR}"
 
     # Organize our files in a portable structure
-    mkdir -p "${OUT_DIR}/bin" \
-             "${OUT_DIR}/cores-info" \
-             "${OUT_DIR}/cores" \
-             "${OUT_DIR}/shaders" \
-             "${OUT_DIR}/lib" \
-             "${OUT_DIR}/autoconfig/" \
-             "${OUT_DIR}/downloads/" \
-             "${OUT_DIR}/system/" \
-             "${OUT_DIR}/screenshots/" \
-             "${OUT_DIR}/assets/" \
-             "${OUT_DIR}/overlays/" \
-             "${OUT_DIR}/remaps/" \
-             "${OUT_DIR}/database/" \
-             "${OUT_DIR}/playlists"
-    cp -avf "${OUT_DIR}/tmp/usr/local/bin/." "${OUT_DIR}/bin"
-    cp -avf "${OUT_DIR}/../release-scripts/." "${OUT_DIR}/bin"
-    cp -avf "${OUT_DIR}/../release-package/." "${OUT_DIR}/bin"
-    cp -avf "${OUT_DIR}/tmp/etc/." "${OUT_DIR}/config"
-    cp -avf "${OUT_DIR}/tmp/usr/local/share/retroarch/assets/." "${OUT_DIR}/assets"
-    mv -vff "${OUT_DIR}/config/retroarch.cfg" "${OUT_DIR}/config/retroarch.cfg.bak"
-    find "${OUT_DIR}" -name "*.info" -exec mv -vf \{\} "${OUT_DIR}/cores-info/" 2> /dev/null \;
-    find "${OUT_DIR}" -name "*.so" -exec mv -vf \{\} "${OUT_DIR}/cores/" 2> /dev/null \;
+    mkdir -p "${DISTDIR}/bin" \
+             "${DISTDIR}/cores-info" \
+             "${DISTDIR}/cores" \
+             "${DISTDIR}/shaders" \
+             "${DISTDIR}/lib" \
+             "${DISTDIR}/autoconfig/" \
+             "${DISTDIR}/downloads/" \
+             "${DISTDIR}/system/" \
+             "${DISTDIR}/screenshots/" \
+             "${DISTDIR}/assets/" \
+             "${DISTDIR}/overlays/" \
+             "${DISTDIR}/remaps/" \
+             "${DISTDIR}/database/" \
+             "${DISTDIR}/playlists"
+    cp -avf "${DISTDIR}/tmp/usr/local/bin/." "${DISTDIR}/bin"
+    cp -avf "${DISTDIR}/../release-scripts/." "${DISTDIR}/bin"
+    cp -avf "${DISTDIR}/../release-package/." "${DISTDIR}/bin"
+    cp -avf "${DISTDIR}/tmp/etc/." "${DISTDIR}/config"
+    cp -avf "${DISTDIR}/tmp/usr/local/share/retroarch/assets/." "${DISTDIR}/assets"
+    mv -vff "${DISTDIR}/config/retroarch.cfg" "${DISTDIR}/config/retroarch.cfg.bak"
+    find "${LIBRETRO_PATH}/dist" -name "*.info" -exec mv -vf \{\} "${DISTDIR}/cores-info/" 2> /dev/null \;
+    find "${LIBRETRO_PATH}/dist" -name "*.so" -exec mv -vf \{\} "${DISTDIR}/cores/" 2> /dev/null \;
 
     # Moving prebuilts
-    cp -avf "${LIBRETRO_PATH}/retroarch/media/shaders_cg" "${OUT_DIR}/shaders"
-    cp -avf "${LIBRETRO_PATH}/retroarch/media/autoconfig" "${OUT_DIR}/autoconfig/joypad"
-    cp -avf "${LIBRETRO_PATH}/retroarch/media/libretrodb/." "${OUT_DIR}/database"
+    cp -avf "${LIBRETRO_PATH}/retroarch/media/shaders_cg" "${DISTDIR}/shaders"
+    cp -avf "${LIBRETRO_PATH}/retroarch/media/autoconfig" "${DISTDIR}/autoconfig/joypad"
+    cp -avf "${LIBRETRO_PATH}/retroarch/media/libretrodb/." "${DISTDIR}/database"
 
     # Cleanup left-overs and any .git files for distribution
-    rm -rf "${OUT_DIR}/tmp"
-    ( find "${OUT_DIR}" -type d -name ".git" \
-      && find "${OUT_DIR}" -name ".gitignore" \
-      && find "${OUT_DIR}" -name ".gitmodules" ) | xargs rm -rf
+    rm -rf "${DISTDIR}/tmp"
+    ( find "${DISTDIR}" -type d -name ".git" \
+      && find "${DISTDIR}" -name ".gitignore" \
+      && find "${DISTDIR}" -name ".gitmodules" ) | xargs rm -rf
 }
 
 function extras_libretro()
 {
     # Convert shaders
-    "${LIBRETRO_PATH}/retroarch/tools/cg2glsl.py" "${OUT_DIR}/shaders/shaders_cg" "${OUT_DIR}/shaders/shaders_glsl"
+    "${LIBRETRO_PATH}/retroarch/tools/cg2glsl.py" "${DISTDIR}/shaders/shaders_cg" "${DISTDIR}/shaders/shaders_glsl"
     
     # Strip out debug symbols from the shared libraries and main binary
-    ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${OUT_DIR}/cores/*.so
-    ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${OUT_DIR}/bin/retroarch
+    ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${DISTDIR}/cores/*.so
+    ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${DISTDIR}/bin/retroarch
 
-    # Zip for distribution
-    zip -rq "${OUT_DIR}/retroarch-x86_64.zip" "${OUT_DIR}"
+    # Pack for archival
+    zip -rq "${DISTDIR}/retroarch-x86_64.zip" "${DISTDIR}"
 }
 
 
 # The main sequence of steps now go here ...
 prerequisites
 build_retroarch
-##build_libretro_all
 build_libretro_select
 install_libretro
 extras_libretro
