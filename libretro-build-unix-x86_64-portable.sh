@@ -90,7 +90,7 @@ function build_libretro_select()
         done
 
       # Build the list
-      cp -af recipes/linux/cores-linux-x86-generic.conf .cores-recipe.conf
+      cp -af recipes/linux/cores-linux-x64-generic.conf .cores-recipe.conf
       FORCE=YES EXIT_ON_ERROR=0 ./libretro-buildbot-recipe.sh .cores-recipe )
 }
 
@@ -118,9 +118,9 @@ function install_libretro()
     cp -avf "${DISTDIR}/../release-package/." "${DISTDIR}/bin"
     cp -avf "${DISTDIR}/tmp/etc/." "${DISTDIR}/config"
     cp -avf "${DISTDIR}/tmp/usr/local/share/retroarch/assets/." "${DISTDIR}/assets"
-    mv -vff "${DISTDIR}/config/retroarch.cfg" "${DISTDIR}/config/retroarch.cfg.bak"
-    find "${LIBRETRO_PATH}/dist" -name "*.info" -exec mv -vf \{\} "${DISTDIR}/cores-info/" 2> /dev/null \;
-    find "${LIBRETRO_PATH}/dist" -name "*.so" -exec mv -vf \{\} "${DISTDIR}/cores/" 2> /dev/null \;
+    mv -uvf "${DISTDIR}/config/retroarch.cfg" "${DISTDIR}/config/retroarch.cfg.bak"
+    find "${DISTDIR}/" -name "*.so" -exec mv -vf \{\} "${DISTDIR}/cores/" 2> /dev/null \;
+    find "${DISTDIR}/" -name "*.info" -exec mv -vf \{\} "${DISTDIR}/cores-info/" 2> /dev/null \;
 
     # Moving prebuilts
     cp -avf "${LIBRETRO_PATH}/retroarch/media/shaders_cg" "${DISTDIR}/shaders"
