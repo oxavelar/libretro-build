@@ -79,6 +79,7 @@ function build_libretro_select()
             "ppsspp"
             "nestopia"
             "beetle_psx"
+	    "pcsx2"
             "mame"
     )
 
