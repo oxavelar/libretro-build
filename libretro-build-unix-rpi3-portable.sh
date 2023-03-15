@@ -129,7 +129,6 @@ function install_libretro()
     find "${DISTDIR}/" -name "*.info" -exec mv -vf \{\} "${DISTDIR}/cores-info/" 2> /dev/null \;
 
     # Moving prebuilts
-    cp -avf "${LIBRETRO_PATH}/retroarch/media/shaders_cg" "${DISTDIR}/shaders"
     cp -avf "${LIBRETRO_PATH}/retroarch/media/autoconfig" "${DISTDIR}/autoconfig/joypad"
     cp -avf "${LIBRETRO_PATH}/retroarch/media/libretrodb/." "${DISTDIR}/database"
 
@@ -142,8 +141,9 @@ function install_libretro()
 
 function extras_libretro()
 {
-    # Convert shaders
-    "${LIBRETRO_PATH}/retroarch/tools/cg2glsl.py" "${DISTDIR}/shaders/shaders_cg" "${DISTDIR}/shaders/shaders_glsl"
+    # Download shaders
+    ( cd "${DISTDIR}/shaders/" \
+      && curl -L https://github.com/libretro/slang-shaders/archive/refs/heads/master.tar.gz --output - | tar -xz --strip-components 1 )
     
     # Strip out debug symbols from the shared libraries and main binary
     ${STRIP} --strip-debug --strip-unneeded --remove-section=.comment --remove-section=.note ${DISTDIR}/cores/*.so
