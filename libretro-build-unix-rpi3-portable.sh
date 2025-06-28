@@ -44,7 +44,7 @@ function prerequisites()
     # Raspberry firmware include files used for compiling
     cd ${CURR_DIR}
     # git clone -b master --single-branch "https://github.com/raspberrypi/firmware" "rpi-firmware" \
-    #  || $(cd "rpi-firmware" && git gc --prune=now && git clean -dfx && git reset --hard && git pull)
+    #  || $(cd "rpi-firmware" && git gc --prune=now && git clean -dfx && git reset --hard && git pull --rebase)
     
 
     # Make sure we have libretro super and get inside, fetch if first time
@@ -52,8 +52,8 @@ function prerequisites()
     git clone "${LIBRETRO_REPO}" || true
 
     # Update the packages
-    ( cd ${LIBRETRO_PATH} && gitclean && git pull )
-    ( cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull )
+    ( cd ${LIBRETRO_PATH} && gitclean && git pull --rebase )
+    ( cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull --rebase )
 
     # Pull dependencies
     ( cd "${LIBRETRO_PATH}" && ./libretro-fetch.sh )
