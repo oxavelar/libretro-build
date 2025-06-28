@@ -46,8 +46,8 @@ function prerequisites()
     git clone "${LIBRETRO_REPO}" || true
 
     # Update the packages
-    ( cd ${LIBRETRO_PATH} && gitclean && git pull )
-    ( cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull )
+    ( cd ${LIBRETRO_PATH} && gitclean && git pull --rebase )
+    ( cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull --rebase )
 
     # Pull dependencies
     ( cd "${LIBRETRO_PATH}" && ./libretro-fetch.sh )
