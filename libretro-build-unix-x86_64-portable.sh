@@ -16,6 +16,7 @@ DISTDIR="${CURR_DIR}/retroarch"
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
+export GIT_TERMINAL_PROMPT=0
 export CFLAGS="-O3 -fomit-frame-pointer -fpie -pie -flto=auto -mno-fsgsbase"
 export CFLAGS="${CFLAGS} -march=x86-64-v2 -mtune=generic"
 export CXXFLAGS="${CFLAGS}"
@@ -157,4 +158,3 @@ install_libretro
 extras_libretro
 sync
 exit 0
-
