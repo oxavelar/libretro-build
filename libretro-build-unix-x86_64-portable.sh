@@ -65,7 +65,7 @@ function build_retroarch()
     ( cd "${LIBRETRO_PATH}/retroarch" && 
       make -j clean
       #./configure --help ; exit -1
-      ./configure --enable-sse --enable-opengl --enable-vulkan --disable-ffmpeg --disable-videoprocessor --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-builtinflac --enable-builtinzlib || exit -127
+      ./configure --enable-sse --enable-opengl --enable-vulkan --disable-ffmpeg --disable-videoprocessor --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-flac --enable-builtinzlib || exit -127
       time make -f Makefile -j || exit -99
       make DESTDIR="${DISTDIR}/tmp" install )
 }
