@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #
 # This script is used in order to build libretro-super
 # retro in a portable Unix way.
