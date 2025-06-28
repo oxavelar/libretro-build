@@ -15,6 +15,7 @@ DISTDIR="${CURR_DIR}/retroarch"
 
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
+export GIT_TERMINAL_PROMPT=0
 export CFLAGS="-O3"
 export CFLAGS="${CFLAGS} -march=armv8-a+crc -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -mvectorize-with-neon-quad"
 export CXXFLAGS="${CFLAGS}"
@@ -162,4 +163,3 @@ install_libretro
 extras_libretro
 sync
 exit 0
-
