@@ -34,9 +34,10 @@ export STRIP="${CROSS_COMPILE}strip"
 
 function gitclean()
 {
+    git reset --hard && \
+    git clean -dfx && \
+    git repack && \
     git gc --prune=now --aggressive
-    git repack && git clean -dfx
-    git reset --hard
 }
 
 function prerequisites()
@@ -45,7 +46,6 @@ function prerequisites()
     cd ${CURR_DIR}
     # git clone -b master --single-branch "https://github.com/raspberrypi/firmware" "rpi-firmware" \
     #  || $(cd "rpi-firmware" && git gc --prune=now && git clean -dfx && git reset --hard && git pull --rebase)
-    
 
     # Make sure we have libretro super and get inside, fetch if first time
     cd ${CURR_DIR}
