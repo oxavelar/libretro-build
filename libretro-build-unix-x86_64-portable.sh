@@ -17,7 +17,7 @@ DISTDIR="${CURR_DIR}/retroarch"
 export LIBRETRO_DEVELOPER=0
 export DEBUG=0
 export GIT_TERMINAL_PROMPT=0
-export CFLAGS="-O3 -fomit-frame-pointer -fpie -pie -flto=auto -mno-fsgsbase"
+export CFLAGS="-O3 -fomit-frame-pointer -fpie -pie -flto=auto"
 export CFLAGS="${CFLAGS} -march=x86-64-v2 -mtune=generic"
 export CXXFLAGS="${CFLAGS}"
 export ASFLAGS="${CFLAGS}"
@@ -34,9 +34,10 @@ export STRIP="strip"
 
 function gitclean()
 {
+    git reset --hard && \
+    git clean -dfx && \
+    git repack && \
     git gc --prune=now --aggressive
-    git repack && git clean -dfx
-    git reset --hard
 }
 
 function prerequisites()
@@ -64,8 +65,8 @@ function build_retroarch()
     # Build retroarch
     ( cd "${LIBRETRO_PATH}/retroarch" && 
       make -j clean
-      #./configure --help ; exit -1
-      ./configure --enable-sse --enable-opengl --enable-vulkan --disable-ffmpeg --disable-videoprocessor --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-flac --enable-builtinzlib || exit -127
+      ./configure --help ; exit -1
+      #./configure --enable-sse --enable-opengl --enable-vulkan --disable-ffmpeg --disable-videoprocessor --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-flac --enable-builtinzlib || exit -127
       time make -f Makefile -j || exit -99
       make DESTDIR="${DISTDIR}/tmp" install )
 }
