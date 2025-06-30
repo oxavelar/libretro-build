@@ -34,10 +34,8 @@ export STRIP="strip"
 
 function gitclean()
 {
-    git reset --hard && \
-    git clean -dfx && \
-    git repack && \
-    git gc --prune=now --aggressive
+    git reset --hard && git clean -dfx
+    git repack && git gc --prune=now --aggressive
 }
 
 function prerequisites()
@@ -51,7 +49,7 @@ function prerequisites()
     ( cd ${LIBRETRO_PATH}/retroarch && gitclean && git pull --rebase )
 
     # Pull dependencies
-    ( cd "${LIBRETRO_PATH}" && ./libretro-fetch.sh )
+    ( cd "${LIBRETRO_PATH}" && ./libretro-fetch.sh || true )
 
     # Prepare build path
     rm -rf $(realpath "${DISTDIR}") && mkdir -p $(realpath "${DISTDIR}")
@@ -65,8 +63,12 @@ function build_retroarch()
     # Build retroarch
     ( cd "${LIBRETRO_PATH}/retroarch" && 
       make -j clean
-      ./configure --help ; exit -1
-      #./configure --enable-sse --enable-opengl --enable-vulkan --disable-ffmpeg --disable-videoprocessor --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-screenshots --disable-accessibility --disable-flac --enable-builtinzlib || exit -127
+      ./configure --enable-opengl --enable-vulkan  --enable-builtinzlib --enable-builtinflac \
+        --disable-ffmpeg --disable-videoprocessor --disable-cheevos \
+        --disable-imageviewer --disable-parport --disable-langextra \
+        --disable-update_assets --disable-screenshots --disable-accessibility \
+        --disable-ssl \
+        || ( ./configure --help ; exit -127 )
       time make -f Makefile -j || exit -99
       make DESTDIR="${DISTDIR}/tmp" install )
 }

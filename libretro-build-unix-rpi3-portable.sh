@@ -34,10 +34,8 @@ export STRIP="${CROSS_COMPILE}strip"
 
 function gitclean()
 {
-    git reset --hard && \
-    git clean -dfx && \
-    git repack && \
-    git gc --prune=now --aggressive
+    git reset --hard && git clean -dfx
+    git repack && git gc --prune=now --aggressive
 }
 
 function prerequisites()
@@ -71,7 +69,11 @@ function build_retroarch()
     ( cd "${LIBRETRO_PATH}/retroarch" && 
       make -j clean
       #./configure --help ; exit -1
-      ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc || exit -127
+      ./configure --enable-neon --enable-opengles --disable-vulkan --disable-xvideo --disable-cg --disable-v4l2 \
+        --disable-al --disable-jack --disable-rsound --disable-oss --disable-coreaudio --disable-roar --disable-ffmpeg \
+        --disable-videoprocessor --disable-sdl2 --disable-sdl --disable-wayland --disable-kms --disable-cheevos \
+        --disable-imageviewer --disable-parport --disable-langextra --disable-update_assets --disable-miniupnpc \
+        || ( ./configure --help ; exit -127 )
       time make -f Makefile -j || exit -99
       make DESTDIR="${DISTDIR}/tmp" install )
 }
