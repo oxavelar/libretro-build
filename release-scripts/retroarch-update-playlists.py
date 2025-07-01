@@ -7,6 +7,7 @@ import glob
 import time
 import zipfile
 import difflib
+import asyncio
 import platform
 import functools
 
@@ -132,21 +133,31 @@ def lpl_entry_write(playlist, path, name):
         f.write('\n')
 
 
-def update_playlists():
+async def process_rom_directory(dirpath, fnames):
+    """
+    Async function to process a single ROM directory (system).
+    """
+    for f in fnames:
+        filepath = os.path.join(dirpath, f)
+        retro_file, game_name, console_name = detect_rom_from_file(filepath)
+        lpl_filename = console_name + '.lpl'
+        lpl_entry_write(lpl_filename, retro_file, game_name)
+
+
+async def update_playlists():
     """
     Will traverse the ROM directory name and start
     populating *.lpl's regarding the games.
     """
     print('I: Generating dynamic retroarch *.lpl\'s ...')
     time_start = time.time()
+    tasks = []
+
     for dirpath, dnames, fnames in os.walk(roms_folder):
-        for f in fnames:
-            # Extract the full filename path
-            filepath = os.path.join(dirpath, f)
-            retro_file, game_name, console_name = detect_rom_from_file(filepath)
-            # Using the filename without extension as human name
-            lpl_filename = console_name + '.lpl'
-            lpl_entry_write(lpl_filename, retro_file, game_name)
+        if fnames:
+            tasks.append(process_rom_directory(dirpath, fnames))
+
+    await asyncio.gather(*tasks)
     time_spent = time.time() - time_start
     print('I: Updated the retroarch playlists in %0.3f seconds' % time_spent)
 
@@ -166,7 +177,7 @@ def main():
     # Remove pre-existing playlists
     purge_playlists()
     # Start detecting the games and populating
-    update_playlists()
+    asyncio.run(update_playlists())
 
 
 if __name__ == '__main__':
