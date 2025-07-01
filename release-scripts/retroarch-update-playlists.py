@@ -5,15 +5,20 @@ import os
 import sys
 import glob
 import time
+import json
 import zipfile
 import difflib
 import asyncio
 import platform
 import functools
+from collections import defaultdict
 
 roms_folder = '../roms/'
 playlists_folder = '../playlists/'
 thumbnail_folder = '../thumbnails/'
+
+# In memory generation
+playlists = defaultdict(list)
 
 
 def detect_rom_from_file(file):
@@ -33,19 +38,24 @@ def get_file_name(file):
     Specific convention for the *.zip files for the *.lpl's.
     """
     rfile = os.path.relpath(file)
-    
+
     # Workaround for Linux where absolute path is needed
-    if platform.system() == 'Linux': rfile = os.path.abspath(file)
-    
+    if platform.system() == 'Linux':
+        rfile = os.path.abspath(file)
+
     # Figure out the retroarch's filename to use
     if file.endswith('.zip'):
-        mainfile = zipfile.ZipFile(file).namelist()[0]
-        return rfile + '#' + mainfile
+        try:
+            with zipfile.ZipFile(file) as zf:
+                mainfile = zf.namelist()[0]
+                return rfile + '#' + mainfile
+        except Exception as e:
+            return rfile
     else:
         return rfile
 
 
-def get_game_name(file, console=None, fuzz_ratio=0.67):
+def get_game_name(file, console=None, fuzz_ratio=0.40):
     """
     If there is a potential thumbnail that has very high fuzz ratio
     please return the updated name. Since retroarch uses specific
@@ -53,28 +63,22 @@ def get_game_name(file, console=None, fuzz_ratio=0.67):
     """
     # Coarse approach at getting the name from filename
     gamename = os.path.splitext(os.path.basename(file))[0]
-    
+
     # If there is a potential thumbnail matching the name use it
-    thumb_folder = os.path.join(thumbnail_folder, console)
-    thumb_folder = os.path.join(thumb_folder, 'Named_Snaps')
-    
-    # Extracts just the filename without extension for all of the thumbs
+    thumb_folder = os.path.join(thumbnail_folder, console, 'Named_Snaps')
     thumbs = glob.glob(os.path.join(thumb_folder, '*.png'))
     thumbs = [os.path.splitext(os.path.basename(t))[0] for t in thumbs]
-    
+
     # Obtains the fuzz ratio of them all and get the closest hit
-    fuzz = lambda x, y: difflib.SequenceMatcher(None, y, x).quick_ratio()
+    fuzz = lambda x, y: difflib.SequenceMatcher(None, y, x).ratio()
     fuzzer = functools.partial(fuzz, gamename)
     ratios = map(fuzzer, thumbs)
     fuzzed = tuple(zip(thumbs, ratios))
-    
+
     name, ratio = max(fuzzed, key=lambda p: p[1]) if len(fuzzed) else tuple(('', 0))
-    
+
     # Update if we find that our match looks good with the thumbs name
-    if ratio > fuzz_ratio:
-        return name
-    else:
-        return gamename
+    return name if ratio > fuzz_ratio else gamename
 
 
 def get_console_name(file):
@@ -82,24 +86,25 @@ def get_console_name(file):
     Using a hashmap for converting my own console name
     to retroarch's way.
     """
-    console =  os.path.basename(os.path.dirname(file))
-    
-    map = { \
-            'gb'        : 'Nintendo - Game Boy',
-            'gbc'       : 'Nintendo - Game Boy Color',
-            '3ds'       : 'Nintendo - Nintendo 3DS',
-            'gba'       : 'Nintendo - Game Boy Advance',
-            'nes'       : 'Nintendo - Nintendo Entertainment System',
-            'psx'       : 'Sony - PlayStation',
-            'ps2'       : 'Sony - PlayStation 2',
-            'ps3'       : 'Sony - PlayStation 3',
-            'snes'      : 'Nintendo - Super Nintendo Entertainment System',
-            'arcade'    : 'FB Alpha - Arcade Games',
-            'n64'       : 'Nintendo - Nintendo 64',
-            'psp'       : 'Sony - PlayStation Portable',
-            'gamecube'  : 'Nintendo - GameCube',
-            'wii'       : 'Nintendo - Wii',
+    console = os.path.basename(os.path.dirname(file))
+
+    map = {
+        'gb': 'Nintendo - Game Boy',
+        'gbc': 'Nintendo - Game Boy Color',
+        '3ds': 'Nintendo - Nintendo 3DS',
+        'gba': 'Nintendo - Game Boy Advance',
+        'nes': 'Nintendo - Nintendo Entertainment System',
+        'psx': 'Sony - PlayStation',
+        'ps2': 'Sony - PlayStation 2',
+        'ps3': 'Sony - PlayStation 3',
+        'snes': 'Nintendo - Super Nintendo Entertainment System',
+        'arcade': 'FB Alpha - Arcade Games',
+        'n64': 'Nintendo - Nintendo 64',
+        'psp': 'Sony - PlayStation Portable',
+        'gamecube': 'Nintendo - GameCube',
+        'wii': 'Nintendo - Wii',
     }
+
     try:
         name = map[console]
     except KeyError:
@@ -108,29 +113,38 @@ def get_console_name(file):
     return name
 
 
-def lpl_entry_write(playlist, path, name):
+def add_to_playlist(console_name, path, name):
     """
-    https://docs.libretro.com/guides/roms-playlists-thumbnails
-
-    The formatting of the *.lpl files of retroarch is similar to:
-
-        (ROM Path)
-        (ROM Name)
-        DETECT
-        DETECT
-        0|crc
-
-    Using this to write the specific entry and playlist.
+    Collects all ROM entries in memory for JSON-based *.lpl output.
     """
-    playlist = os.path.join(playlists_folder, playlist)
-    
-    with open(playlist, 'a+') as f:
-        f.write(path + '\n')
-        f.write(name + '\n')
-        f.write('DETECT' + '\n')
-        f.write('DETECT' + '\n')
-        f.write('0|crc' + '\n')
-        f.write('\n')
+    entry = {
+        "path": path,
+        "label": name,
+        "core_path": "DETECT",
+        "core_name": "DETECT",
+        "crc32": "0|crc",
+        "db_name": ""
+    }
+    playlists[console_name].append(entry)
+
+
+def write_playlists():
+    """
+    Writes the final *.lpl JSON format playlists to disk.
+    """
+    if not os.path.exists(playlists_folder):
+        os.makedirs(playlists_folder)
+
+    for console, items in playlists.items():
+        output = {
+            "items": items
+        }
+
+        safe_name = console + '.lpl'
+        out_path = os.path.join(playlists_folder, safe_name)
+
+        with open(out_path, 'w', encoding='utf-8') as f:
+            json.dump(output, f, indent=2, ensure_ascii=False)
 
 
 async def process_rom_directory(dirpath, fnames):
@@ -140,8 +154,9 @@ async def process_rom_directory(dirpath, fnames):
     for f in fnames:
         filepath = os.path.join(dirpath, f)
         retro_file, game_name, console_name = detect_rom_from_file(filepath)
-        lpl_filename = console_name + '.lpl'
-        lpl_entry_write(lpl_filename, retro_file, game_name)
+        if not console_name:
+            continue
+        add_to_playlist(console_name, retro_file, game_name)
 
 
 async def update_playlists():
@@ -158,6 +173,7 @@ async def update_playlists():
             tasks.append(process_rom_directory(dirpath, fnames))
 
     await asyncio.gather(*tasks)
+    write_playlists()
     time_spent = time.time() - time_start
     print('I: Updated the retroarch playlists in %0.3f seconds' % time_spent)
 
