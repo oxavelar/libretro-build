@@ -23,9 +23,10 @@ def retroarch_update():
 def retroarch_launch():
     """ Executes our own breed of retroarch portable """
     os.chdir(retro_dir)
-    retro_cmd = retro_bin + ' --config ' + retro_cfg
     os.environ['LD_LIBRARY_PATH'] = os.path.join(retro_dir, 'lib')
-    subprocess.call([retro_cmd], shell=True)
+    retro_executable = os.path.abspath(retro_bin)
+    args = [retro_executable, '--config', retro_cfg]
+    os.execv(retro_executable, args)
 
 
 def systemd_service_ready():
