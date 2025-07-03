@@ -13,11 +13,10 @@ import platform
 import functools
 from collections import defaultdict
 
-roms_folder = '../roms/'
-playlists_folder = '../playlists/'
-thumbnail_folder = '../thumbnails/'
+roms_folder = os.path.abspath('../roms/')
+playlists_folder = os.path.abspath('../playlists/')
+thumbnail_folder = os.path.abspath('../thumbnails/')
 
-# In memory generation
 playlists = defaultdict(list)
 
 
@@ -61,23 +60,27 @@ def get_game_name(file, console=None, fuzz_ratio=0.40):
     please return the updated name. Since retroarch uses specific
     names for the thumbnail data.
     """
-    # Coarse approach at getting the name from filename
     gamename = os.path.splitext(os.path.basename(file))[0]
 
-    # If there is a potential thumbnail matching the name use it
-    thumb_folder = os.path.join(thumbnail_folder, console, 'Named_Snaps')
-    thumbs = glob.glob(os.path.join(thumb_folder, '*.png'))
-    thumbs = [os.path.splitext(os.path.basename(t))[0] for t in thumbs]
+    if not console:
+        return gamename
 
-    # Obtains the fuzz ratio of them all and get the closest hit
+    thumb_folder = os.path.join(thumbnail_folder, console, 'Named_Snaps')
+    if not os.path.isdir(thumb_folder):
+        return gamename
+
+    thumbs = [os.path.splitext(os.path.basename(t))[0]
+              for t in glob.glob(os.path.join(thumb_folder, '*.png'))]
+
+    if not thumbs:
+        return gamename
+
     fuzz = lambda x, y: difflib.SequenceMatcher(None, y, x).ratio()
     fuzzer = functools.partial(fuzz, gamename)
-    ratios = map(fuzzer, thumbs)
-    fuzzed = tuple(zip(thumbs, ratios))
+    fuzzed = zip(thumbs, map(fuzzer, thumbs))
 
-    name, ratio = max(fuzzed, key=lambda p: p[1]) if len(fuzzed) else tuple(('', 0))
+    name, ratio = max(fuzzed, key=lambda p: p[1], default=('', 0))
 
-    # Update if we find that our match looks good with the thumbs name
     return name if ratio > fuzz_ratio else gamename
 
 
@@ -86,7 +89,7 @@ def get_console_name(file):
     Using a hashmap for converting my own console name
     to retroarch's way.
     """
-    console = os.path.basename(os.path.dirname(file))
+    console = os.path.basename(os.path.dirname(file)).lower()
 
     map = {
         'gb': 'Nintendo - Game Boy',
@@ -105,12 +108,7 @@ def get_console_name(file):
         'wii': 'Nintendo - Wii',
     }
 
-    try:
-        name = map[console]
-    except KeyError:
-        name = ''
-
-    return name
+    return map.get(console, '')
 
 
 def add_to_playlist(console_name, path, name):
@@ -152,7 +150,11 @@ async def process_rom_directory(dirpath, fnames):
     Async function to process a single ROM directory (system).
     """
     for f in fnames:
+        if f.startswith('.'):
+            continue
         filepath = os.path.join(dirpath, f)
+        if not os.path.isfile(filepath):
+            continue
         retro_file, game_name, console_name = detect_rom_from_file(filepath)
         if not console_name:
             continue
